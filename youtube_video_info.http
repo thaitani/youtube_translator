@@ -1,0 +1,16 @@
+@key = AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8
+@videoId = FaLBcSMVVuU
+
+###
+POST https://www.youtube.com/youtubei/v1/player?key={{key}}
+content-type: application/json
+
+{
+    "context": {
+        "client": {
+            "clientName": "WEB",
+            "clientVersion": "2.20201021.03.00",
+        }
+    },
+    "videoId": "{{videoId}}"
+}
