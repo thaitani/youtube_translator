@@ -19,7 +19,6 @@ export default function Home() {
     setPlayerState(event.target.getPlayerState());
     setCurrentTime(event.target.getCurrentTime());
   };
-  console.log(currentTime);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -31,14 +30,14 @@ export default function Home() {
     return () => clearTimeout(id);
   }, [playerState, intervalCheck]);
 
-  const { data } = useQuery("captions", () =>
+  const { data } = useQuery(`captions-${videoId}`, () =>
     fetch(`/api/captions?videoId=${videoId}`, {
       method: "GET",
     }).then((value) => value.json())
   );
 
   const { data: cap } = useQuery(
-    "lan",
+    `${videoId}${lan}`,
     () => lan && fetch(lan).then((value) => value.text())
   );
 
@@ -58,6 +57,7 @@ export default function Home() {
         ></input>
         {data && (
           <select onChange={(e) => setLan(e.target.value)}>
+            <option key="" value=""></option>
             {data.map((e: any) => (
               <option key={e.vssId} value={e.baseUrl}>
                 {e.vssId}
