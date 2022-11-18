@@ -1,23 +1,27 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import YouTube, { YouTubeProps } from "react-youtube";
+import YouTube, { YouTubeProps, YouTubePlayer } from "react-youtube";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
+  const [youtubePlayer, setYoutubePlayer] = useState<YouTubePlayer>();
+  const [intervalCheck, setIntervalCheck] = useState<number>(0);
+  const [playerState, setPlayerState] = useState<number>();
+  const [currentTime, setCurrentTime] = useState<number>(0);
   const _onReady: YouTubeProps["onReady"] = (event) => {
-    event.target.loadVideoById({
-      videoId: "HxJoNjbJHjY", //YouTubeのvideo ID
-      startSeconds: 10, //開始時間。秒で記述
-      endSeconds: 20, //終了時間。秒で記述
-    });
+    setYoutubePlayer(event.target);
   };
-  const _onPlay: YouTubeProps["onPlay"] = (event) => {
-    // while (true) {
-    //   if (event.target.getPlayerState() !== 1) {
-    //     break;
-    //   }
-    //   console.log(event.target.getCurrentTime());
-    // }
+  const _onStateChange: YouTubeProps["onStateChange"] = (event) => {
+    setPlayerState(event.target.getPlayerState());
   };
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCurrentTime(youtubePlayer?.getCurrentTime());
+      if (playerState === 1) setIntervalCheck(intervalCheck + 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [youtubePlayer, playerState, intervalCheck]);
 
   return (
     <div className={styles.container}>
@@ -28,7 +32,12 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <YouTube videoId={"HxJoNjbJHjY"} onReady={_onReady} onPlay={_onPlay} />
+        <div>{currentTime}</div>
+        <YouTube
+          videoId={"HxJoNjbJHjY"}
+          onReady={_onReady}
+          onStateChange={_onStateChange}
+        />
       </main>
 
       <footer className={styles.footer}></footer>
