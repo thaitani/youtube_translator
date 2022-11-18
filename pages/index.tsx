@@ -1,27 +1,46 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import { useQuery } from "react-query";
 import YouTube, { YouTubeProps, YouTubePlayer } from "react-youtube";
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
-  const [youtubePlayer, setYoutubePlayer] = useState<YouTubePlayer>();
+  const youtubePlayer = useRef<YouTubePlayer>();
   const [intervalCheck, setIntervalCheck] = useState<number>(0);
-  const [playerState, setPlayerState] = useState<number>();
+  const [playerState, setPlayerState] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const [videoId, setVideoId] = useState<string>("FaLBcSMVVuU");
+  const [lan, setLan] = useState<string>("");
+
   const _onReady: YouTubeProps["onReady"] = (event) => {
-    setYoutubePlayer(event.target);
+    youtubePlayer.current = event.target;
   };
   const _onStateChange: YouTubeProps["onStateChange"] = (event) => {
     setPlayerState(event.target.getPlayerState());
+    setCurrentTime(event.target.getCurrentTime());
   };
+  console.log(currentTime);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setCurrentTime(youtubePlayer?.getCurrentTime());
-      if (playerState === 1) setIntervalCheck(intervalCheck + 1);
+    const id = setTimeout(() => {
+      setCurrentTime(youtubePlayer.current?.getCurrentTime());
+      if (playerState === 1) {
+        setIntervalCheck(intervalCheck + 1);
+      }
     }, 1000);
-    return () => clearInterval(id);
-  }, [youtubePlayer, playerState, intervalCheck]);
+    return () => clearTimeout(id);
+  }, [playerState, intervalCheck]);
+
+  const { data } = useQuery("captions", () =>
+    fetch(`/api/captions?videoId=${videoId}`, {
+      method: "GET",
+    }).then((value) => value.json())
+  );
+
+  const { data: cap } = useQuery(
+    "lan",
+    () => lan && fetch(lan).then((value) => value.text())
+  );
 
   return (
     <div className={styles.container}>
@@ -32,12 +51,36 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <div>{currentTime}</div>
+        <input
+          id="videoId"
+          value={videoId}
+          onChange={(e) => setVideoId(e.target.value)}
+        ></input>
+        {data && (
+          <select onChange={(e) => setLan(e.target.value)}>
+            {data.map((e: any) => (
+              <option key={e.vssId} value={e.baseUrl}>
+                {e.vssId}
+              </option>
+            ))}
+          </select>
+        )}
         <YouTube
-          videoId={"HxJoNjbJHjY"}
+          videoId={videoId}
           onReady={_onReady}
           onStateChange={_onStateChange}
         />
+        <div>{currentTime}</div>
+        <div>
+          {cap &&
+            [
+              ...cap.matchAll(/<text start="(.*?)" dur="(.*?)">(.*?)<\/text>/g),
+            ].map((e) => (
+              <div key={e[0]}>
+                {e[1]} {e[2]} {e[3]}
+              </div>
+            ))}
+        </div>
       </main>
 
       <footer className={styles.footer}></footer>
