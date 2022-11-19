@@ -75,7 +75,9 @@ export default function Home() {
         <Box>
           {cap &&
             [
-              ...cap.matchAll(/<text start="(.*?)" dur="(.*?)">(.*?)<\/text>/g),
+              ...cap
+                .replaceAll(/&amp;#39;/g, "'")
+                .matchAll(/<text start="(.*?)" dur="(.*?)">(.*?)<\/text>/g),
             ].map((e) => (
               <Flex key={e[0]}>
                 <Box flex="1">{e[1]}</Box>
