@@ -1,22 +1,15 @@
 import Head from "next/head";
-import styles from "../styles/Home.module.css";
-import { useQuery } from "react-query";
 import { useState } from "react";
 import {
-  Box,
   Text,
-  Flex,
   Input,
   Select,
   Container,
   VStack,
   HStack,
-  Tag,
   Stack,
   Grid,
-  GridItem,
   Button,
-  SimpleGrid,
   Divider,
 } from "@chakra-ui/react";
 import useYoutube from "./hooks/useYoutube";

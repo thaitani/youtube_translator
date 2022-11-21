@@ -1,5 +1,4 @@
 import { useQuery } from "react-query";
-import { CaptionTrack } from "../api/captions";
 import { CaptionInfo } from "./useCaptions";
 
 type Caption = {
